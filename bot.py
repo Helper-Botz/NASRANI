@@ -1,4 +1,3 @@
-from os import getenv
 import logging
 import logging.config
 
@@ -22,42 +21,7 @@ import pytz
 from aiohttp import web
 from plugins import web_server
 
-### rename
-from plugins.helpers.config import *
-import os
-
-##################
-
-import logging
-logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-LOGGER = logging.getLogger(__name__)
-
-from plugins.helpers.sample_config import Config
-
-import pyrogram
-logging.getLogger("pyrogram").setLevel(logging.WARNING)
-
-if __name__ == "__main__" :
-    plugins = dict(
-        root="plugins"
-    )
-    app = pyrogram.Client(
-        "HerokuProBot",
-        bot_token=Config.BOT_TOKEN,
-        api_id=Config.API_ID,
-        api_hash=Config.API_HASH,
-        plugins=plugins
-    )
-
-
-BOT_USERNAME = os.environ.get("BOT_USERNAME")
-
-
-
 class Bot(Client):
-    if not os.path.isdir(DOWNLOAD_LOCATION):
-        os.makedirs(DOWNLOAD_LOCATION)
 
     def __init__(self):
         super().__init__(
@@ -71,13 +35,10 @@ class Bot(Client):
         )
 
     async def start(self):
-        await super().start()
-        me = await self.get_me()      
-        print(f"{me.first_name} | @{me.username} 𝚂𝚃𝙰𝚁𝚃𝙴𝙳...⚡️")
         b_users, b_chats = await db.get_banned()
         temp.BANNED_USERS = b_users
         temp.BANNED_CHATS = b_chats
-#       await super().start()
+        await super().start()
         await Media.ensure_indexes()
         me = await self.get_me()
         temp.ME = me.id
@@ -96,15 +57,6 @@ class Bot(Client):
         await app.setup()
         bind_address = "0.0.0.0"
         await web.TCPSite(app, bind_address, PORT).start()
-        global BOT_ID, BOT_NAME, BOT_USERNAME
-        getme = await self.get_me()
-        BOT_ID = getme.id
-        BOT_USERNAME = getme.username
-        if getme.last_name:
-            BOT_NAME = getme.first_name + " " + getme.last_name
-        else:
-            BOT_NAME = getme.first_name
-
 
     async def stop(self, *args):
         await super().stop()
@@ -116,7 +68,29 @@ class Bot(Client):
         limit: int,
         offset: int = 0,
     ) -> Optional[AsyncGenerator["types.Message", None]]:
-        
+        """Iterate through a chat sequentially.
+        This convenience method does the same as repeatedly calling :meth:`~pyrogram.Client.get_messages` in a loop, thus saving
+        you from the hassle of setting up boilerplate code. It is useful for getting the whole chat messages with a
+        single call.
+        Parameters:
+            chat_id (``int`` | ``str``):
+                Unique identifier (int) or username (str) of the target chat.
+                For your personal cloud (Saved Messages) you can simply use "me" or "self".
+                For a contact that exists in your Telegram address book you can use his phone number (str).
+                
+            limit (``int``):
+                Identifier of the last message to be returned.
+                
+            offset (``int``, *optional*):
+                Identifier of the first message to be returned.
+                Defaults to 0.
+        Returns:
+            ``Generator``: A generator yielding :obj:`~pyrogram.types.Message` objects.
+        Example:
+            .. code-block:: python
+                for message in app.iter_messages("pyrogram", 1, 15000):
+                    print(message.text)
+        """
         current = offset
         while True:
             new_diff = min(200, limit - current)
