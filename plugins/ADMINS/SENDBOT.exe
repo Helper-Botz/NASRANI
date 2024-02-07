@@ -1,0 +1,41 @@
+# (c) @MUNNIPOPZ
+import os
+import requests
+import pyrogram
+import json
+from info import LOG_CHANNEL, SUPPORT_CHAT_ID, ADMINS, BOT_TOKEN, API_ID, API_HASH
+from pyrogram import Client as MUNNIPOPZ
+from pyrogram import filters, Client
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram.types import (
+    ReplyKeyboardMarkup, InlineKeyboardMarkup, InlineKeyboardButton)
+
+
+@MUNNIPOPZ.on_message(filters.forwarded & filters.channel & filters.incoming)
+async def channel_tag(bot, message):
+    try:
+        chat_id = message.chat.id
+        forward_msg = await message.copy(chat_id)
+        await message.delete()
+    except:
+        await message.reply_text("Oops , Recheck My Admin Permissions & Try Again")
+
+
+
+
+
+
+@MUNNIPOPZ.on_message(filters.command(["copy"], [".", "!", "/"]) & filters.user(ADMINS))
+async def channel_tag(bot, message):
+    if message.reply_to_message:
+        messageid = message.reply_to_message
+        try:
+            chat_id = SUPPORT_CHAT_ID
+            forward_msg = await message.copy(chat_id)   ###### ,reply_markup=ReplyKeyboardMarkup([["Nice!"]]))
+            await message.delete()
+        except:
+            await message.reply_text("Oops , Recheck My Admin Permissions & Try Again")    
+
+
+
+
