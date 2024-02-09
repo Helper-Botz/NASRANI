@@ -163,7 +163,7 @@ BOT_TOKEN = getenv("BOT_TOKEN")
 # Add Owner Username without @ 
 OWNER_USERNAME = getenv("OWNER_USERNAME","kinzanoufal")
 # Get Your bot username
-BOT_USERNAME = getenv("BOT_USERNAME" , "MONEY_HIEST_ROBOT")
+# BOT_USERNAME = getenv("BOT_USERNAME" , "MONEY_HIEST_ROBOT")
 BOT_NAME = getenv("BOT_NAME" , "MONEY_HIEST_ROBOT")
 
 
@@ -173,7 +173,8 @@ BOT_NAME = getenv("BOT_NAME" , "MONEY_HIEST_ROBOT")
 
 
 
-USERNAME = f"{temp.U_NAME}"
+BOT_USERNAME = f"""{temp.U_NAME}
+"""
 
 STICKER_DIMENSIONS = (512, 512)
 
