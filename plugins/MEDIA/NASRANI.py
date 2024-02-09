@@ -215,7 +215,7 @@ def capture_err(func):
 
 
 @Client.on_message(filters.command("kangs"))
-@capture_err
+# @capture_err
 async def my_kangs(client, message: Message):
     if not message.reply_to_message:
         return await message.reply_text("Reply to a sticker/image to kang it.")
