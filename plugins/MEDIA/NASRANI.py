@@ -1,3 +1,21 @@
+
+
+import logging
+import imghdr
+import os
+from asyncio import gather
+from traceback import format_exc
+from info import API_ID, API_HASH, BOT_TOKEN
+from pyrogram import filters
+from pyrogram.errors import (
+    PeerIdInvalid,
+    ShortnameOccupyFailed,
+    StickerEmojiInvalid,
+    StickerPngDimensions,
+    StickerPngNopng,
+    UserIsBlocked,
+)
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 import imghdr, os
 from asyncio import gather
 from traceback import format_exc
@@ -10,6 +28,150 @@ from Same.stickerset import *
 from info import BOT_TOKEN, API_ID, API_HASH, LOG_CHANNEL
 from utils import temp
 
+from pyrogram import Client, filters, enums
+
+from pyrogram import Client, errors
+from pyrogram.enums import ChatMemberStatus, ParseMode
+logging.getLogger("httpx").setLevel(logging.ERROR)
+logging.getLogger("pyrogram").setLevel(logging.ERROR)
+logging.getLogger("pytgcalls").setLevel(logging.ERROR)
+
+def LOGGER(name: str) -> logging.Logger:
+    return logging.getLogger(name)
+    
+logging.basicConfig(
+    level=logging.INFO,
+    format="[%(asctime)s - %(levelname)s] - %(name)s - %(message)s",
+    datefmt="%d-%b-%y %H:%M:%S",
+    handlers=[
+        logging.FileHandler("log.txt"),
+        logging.StreamHandler(),
+    ],
+)
+
+logging.getLogger("httpx").setLevel(logging.ERROR)
+logging.getLogger("pyrogram").setLevel(logging.ERROR)
+logging.getLogger("pytgcalls").setLevel(logging.ERROR)
+
+def LOGGER(name: str) -> logging.Logger:
+    return logging.getLogger(name)
+
+
+def dirr():
+    for file in os.listdir():
+        if file.endswith(".jpg"):
+            os.remove(file)
+        elif file.endswith(".jpeg"):
+            os.remove(file)
+        elif file.endswith(".png"):
+            os.remove(file)
+
+    if "downloads" not in os.listdir():
+        os.mkdir("downloads")
+    if "cache" not in os.listdir():
+        os.mkdir("cache")
+
+    LOGGER(__name__).info("Directories Updated.")
+
+
+
+
+
+class DAXX(Client):
+    def __init__(self):
+        LOGGER(__name__).info(f"Starting Bot...")
+        super().__init__(
+            name="DAXXMUSIC",
+            api_id=API_ID,
+            api_hash=API_HASH,
+            bot_token=BOT_TOKEN,
+            in_memory=True,
+            max_concurrent_transmissions=7,
+        )
+
+    async def start(self):
+        await super().start()
+        self.id = self.me.id
+        self.name = self.me.first_name + " " + (self.me.last_name or "")
+        self.username = self.me.username
+        self.mention = self.me.mention
+
+        try:
+            await self.send_message(
+                chat_id=LOG_CHANNEL,
+                text=f"<u><b>» {self.mention} ʙᴏᴛ sᴛᴀʀᴛᴇᴅ :</b><u>\n\nɪᴅ : <code>{self.id}</code>\nɴᴀᴍᴇ : {self.name}\nᴜsᴇʀɴᴀᴍᴇ : @{self.username}",
+            )
+        except (errors.ChannelInvalid, errors.PeerIdInvalid):
+            LOGGER(__name__).error(
+                "Bot has failed to access the log group/channel. Make sure that you have added your bot to your log group/channel."
+            )
+            exit()
+        except Exception as ex:
+            LOGGER(__name__).error(
+                f"Bot has failed to access the log group/channel.\n  Reason : {type(ex).__name__}."
+            )
+            exit()
+
+        a = await self.get_chat_member(config.LOGGER_ID, self.id)
+        if a.status != ChatMemberStatus.ADMINISTRATOR:
+            LOGGER(__name__).error(
+                "Please promote your bot as an admin in your log group/channel."
+            )
+            exit()
+        LOGGER(__name__).info(f"Music Bot Started as {self.name}")
+
+
+app = DAXX()
+# -----------
+
+import sys
+import traceback
+from functools import wraps
+
+from pyrogram.errors.exceptions.forbidden_403 import ChatWriteForbidden
+
+
+import math
+import os
+
+from PIL import Image
+from pyrogram import Client, raw
+from pyrogram.file_id import FileId
+
+
+from typing import List
+
+from pyrogram import Client, errors, raw
+
+import logging
+
+import re
+from os import getenv
+
+from dotenv import load_dotenv
+from pyrogram import filters
+
+
+
+load_dotenv()
+
+# Get this value from my.telegram.org/apps.
+API_ID = int(getenv("API_ID"))
+API_HASH = getenv("API_HASH")
+# Get your token from @BotFather on Telegram.
+BOT_TOKEN = getenv("BOT_TOKEN")
+# Add Owner Username without @ 
+OWNER_USERNAME = getenv("OWNER_USERNAME","kinzanoufal")
+# Get Your bot username
+BOT_USERNAME = getenv("BOT_USERNAME" , "MONEY_HIEST_ROBOT")
+BOT_NAME = getenv("BOT_NAME" , "MONEY_HIEST_ROBOT")
+
+
+
+
+
+
+
 
 USERNAME = f"{temp.U_NAME}"
 
@@ -21,7 +183,7 @@ MAX_STICKERS = (
 SUPPORTED_TYPES = ["jpeg", "png", "webp"]
 
     
-app = ()
+
 
 
 @Client.on_message(filters.command("kang"))
