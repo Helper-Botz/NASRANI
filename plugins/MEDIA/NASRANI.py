@@ -11,7 +11,7 @@ from info import BOT_TOKEN, API_ID, API_HASH, LOG_CHANNEL
 from utils import temp
 
 
-BOT_USERNAME = f"{temp.U_NAME}"
+USERNAME = f"{temp.U_NAME}"
 
 STICKER_DIMENSIONS = (512, 512)
 
@@ -26,7 +26,7 @@ app = ()
 
 @Client.on_message(filters.command("kang"))
 async def kang(client, message: Message):
-    BOT_USERNAME = client.username
+    BOT_USERNAME = USERNAME
     if not message.reply_to_message:
         return await message.reply_text("Reply to a sticker/image to kang it.")
     if not message.from_user:
