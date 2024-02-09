@@ -182,13 +182,40 @@ MAX_STICKERS = (
 )
 SUPPORTED_TYPES = ["jpeg", "png", "webp"]
 
+def capture_err(func):
+    @wraps(func)
+    async def capture(client, message, *args, **kwargs):
+        try:
+            return await func(client, message, *args, **kwargs)
+        except ChatWriteForbidden:
+            await app.leave_chat(message.chat.id)
+            return
+        except Exception as err:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            errors = traceback.format_exception(
+                etype=exc_type,
+                value=exc_obj,
+                tb=exc_tb,
+            )
+            error_feedback = split_limits(
+                "**ERROR** | `{}` | `{}`\n\n```{}```\n\n```{}```\n".format(
+                    0 if not message.from_user else message.from_user.id,
+                    0 if not message.chat else message.chat.id,
+                    message.text or message.caption,
+                    "".join(errors),
+                ),
+            )
+            for x in error_feedback:
+                await app.send_message(LOGGER, x)
+            raise err
+
+    return capture
     
 
 
-
-@Client.on_message(filters.command("kang"))
-async def kang(client, message: Message):
-    BOT_USERNAME = USERNAME
+@Client.on_message(filters.command("kangs"))
+@capture_err
+async def my_kangs(client, message: Message):
     if not message.reply_to_message:
         return await message.reply_text("Reply to a sticker/image to kang it.")
     if not message.from_user:
@@ -202,12 +229,12 @@ async def kang(client, message: Message):
     if len(args) > 1:
         sticker_emoji = str(args[1])
     elif (
-            message.reply_to_message.sticker
-            and message.reply_to_message.sticker.emoji
+        message.reply_to_message.sticker
+        and message.reply_to_message.sticker.emoji
     ):
         sticker_emoji = message.reply_to_message.sticker.emoji
     else:
-        sticker_emoji = "▫️"
+        sticker_emoji = "🤔"
 
     # Get the corresponding fileid, resize the file if necessary
     doc = message.reply_to_message.photo or message.reply_to_message.document
@@ -223,7 +250,7 @@ async def kang(client, message: Message):
             if doc.file_size > 10000000:
                 return await msg.edit("File size too large.")
 
-            temp_file_path = await client.download_media(doc)
+            temp_file_path = await app.download_media(doc)
             image_type = imghdr.what(temp_file_path)
             if image_type not in SUPPORTED_TYPES:
                 return await msg.edit(
@@ -254,9 +281,7 @@ async def kang(client, message: Message):
         await message.reply_text(str(e))
         e = format_exc()
         return print(e)
-
-    # Find an available pack & add the sticker to the pack; create a new pack if needed
-    # Would be a good idea to cache the number instead of searching it every single time...
+#-------
     packnum = 0
     packname = "f" + str(message.from_user.id) + "_by_" + BOT_USERNAME
     limit = 0
@@ -271,19 +296,19 @@ async def kang(client, message: Message):
                 stickerset = await create_sticker_set(
                     client,
                     message.from_user.id,
-                    f"{message.from_user.first_name[:32]}'s | @BETA_BOTZ Pack",
+                    f"{message.from_user.first_name[:32]}'s kang pack",
                     packname,
                     [sticker],
                 )
             elif stickerset.set.count >= MAX_STICKERS:
                 packnum += 1
                 packname = (
-                        "f"
-                        + str(packnum)
-                        + "_"
-                        + str(message.from_user.id)
-                        + "_by_"
-                        + BOT_USERNAME
+                    "f"
+                    + str(packnum)
+                    + "_"
+                    + str(message.from_user.id)
+                    + "_by_"
+                    + BOT_USERNAME
                 )
                 limit += 1
                 continue
