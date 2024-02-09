@@ -4,8 +4,8 @@ from traceback import format_exc
 from pyrogram import filters, Client
 from pyrogram.types import *
 from pyrogram.errors import *
-from utils.files import *
-from utils.stickerset import *
+from Same.files import *
+from Same.stickerset import *
 
 from info import BOT_TOKEN, API_ID, API_HASH, LOG_CHANNEL
 from utils import temp
